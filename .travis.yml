@@ -1,0 +1,25 @@
+sudo: required
+
+language: node_js
+
+node_js:
+  - "7.8.0"
+
+services:
+  - docker
+
+env:
+  - DOCKER_IMAGE=chiswicked/achievements-service
+
+install:
+  - docker build -t $DOCKER_IMAGE .
+
+script:
+  - docker run $DOCKER_IMAGE test
+
+after_success:
+  - docker run $DOCKER_IMAGE coverage:report > coverage.lcov
+  - npm i codacy-coverage --save-dev
+  - npm run coverage:upload < coverage.lcov
+  - docker run $DOCKER_IMAGE lint:js -s
+  - ./bin/push-docker-image `bash ./bin/package-version`
