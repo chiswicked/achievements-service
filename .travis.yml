@@ -18,8 +18,5 @@ script:
   - docker run $DOCKER_IMAGE test
 
 after_success:
-  - docker run $DOCKER_IMAGE coverage:report > coverage.lcov
-  - npm i codacy-coverage --save-dev
-  - npm run coverage:upload < coverage.lcov
-  - docker run $DOCKER_IMAGE lint:js -s
+  - ./bin/report-code-quality
   - ./bin/push-docker-image `bash ./bin/package-version`
