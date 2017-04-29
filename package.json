@@ -24,10 +24,12 @@
     "test"
   ],
   "dependencies": {
-    "express": "^4.15.2"
+    "express": "^4.15.2",
+    "mongodb": "^2.2.26"
   },
   "devDependencies": {
     "chai": "^3.5.0",
+    "chai-as-promised": "^6.0.0",
     "chai-http": "^3.0.0",
     "codacy-coverage": "^2.0.2",
     "dockerlint": "^0.3.1",
