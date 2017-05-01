@@ -10,6 +10,14 @@
  */
 
 const winston = require('winston');
+const fs = require('fs');
+
+/**
+ * Basic config
+ * @private
+ */
+
+const LOG_DIR = `${process.env.NODE_PATH || '.'}/log`;
 
 /**
  * Debug level logging to console output
@@ -30,7 +38,7 @@ const debugConsole = new (winston.transports.Console)({
 
 const infoFile = new (winston.transports.File)({
   name: 'info-file',
-  filename: './log/filelog-info.log',
+  filename: `${LOG_DIR}/filelog-info.log`,
   timestamp: true,
   level: 'info',
 });
@@ -42,7 +50,7 @@ const infoFile = new (winston.transports.File)({
 
 const errorFile = new (winston.transports.File)({
   name: 'error-file',
-  filename: './log/filelog-error.log',
+  filename: `${LOG_DIR}/filelog-error.log`,
   timestamp: true,
   level: 'error',
 });
@@ -99,9 +107,15 @@ const generateTransports = (mode) => {
 const createLogger = (transports) => {
   let result = [];
 
+  // Remove invalid Transport instances from supplied array
   if (transports instanceof Array) {
     result = transports.filter(transport =>
       transport instanceof winston.Transport);
+  }
+
+  // Create log directory if does not exist yet
+  if (!fs.existsSync(LOG_DIR)) {
+    fs.mkdirSync(LOG_DIR);
   }
 
   return new (winston.Logger)({
