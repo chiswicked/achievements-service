@@ -1,11 +1,19 @@
+/*!
+ * Achievements Service
+ * Copyright(c) 2017 Norbert Metz
+ * MIT Licensed
+ */
+
 /**
  * Module dependencies.
+ * @private
  */
 
 const winston = require('winston');
 
 /**
  * Debug level logging to console output
+ * @private
  */
 
 const debugConsole = new (winston.transports.Console)({
@@ -17,6 +25,7 @@ const debugConsole = new (winston.transports.Console)({
 
 /**
  * Info level logging into a file
+ * @private
  */
 
 const infoFile = new (winston.transports.File)({
@@ -28,6 +37,7 @@ const infoFile = new (winston.transports.File)({
 
 /**
  * Error level logging into a file
+ * @private
  */
 
 const errorFile = new (winston.transports.File)({
@@ -40,6 +50,7 @@ const errorFile = new (winston.transports.File)({
 /**
  * Transport templates for development, test and production
  * Additional template for logging turned off
+ * @private
  */
 
 const transportTemplates = [{
@@ -66,9 +77,9 @@ const transportTemplates = [{
 /**
  * Returns an array of Winston Transports based on mode
  *
- * @param {string} mode `development`, `test`, `production` or `off`
- * @return {Array} Array of Winston Transports
- * @api public
+ * @param {string} mode [`development`|`test`|`production`|`off`]
+ * @return {Array}
+ * @public
  */
 
 const generateTransports = (mode) => {
@@ -80,9 +91,9 @@ const generateTransports = (mode) => {
  * Returns a Winston logger instance with given Array of Winston Transports
  * Ignores invalid Transports
  *
- * @param {*} transports Array of Winston Transports
+ * @param {Array} transports Array of Winston Transports
  * @return {winston.Logger} Logger instance
- * @api public
+ * @public
  */
 
 const createLogger = (transports) => {
@@ -100,6 +111,7 @@ const createLogger = (transports) => {
 
 /**
  * Expose logger factory method
+ * @public
  */
 
 module.exports = createLogger;
@@ -107,6 +119,7 @@ exports = module.exports;
 
 /**
  * Expose `generateTransports(mode)` helper method
+ * @public
  */
 
 exports.generateTransports = generateTransports;

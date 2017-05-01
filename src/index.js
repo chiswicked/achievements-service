@@ -1,3 +1,9 @@
+/*!
+ * Achievements Service
+ * Copyright(c) 2017 Norbert Metz
+ * MIT Licensed
+ */
+
 const MongoClient = require('mongodb').MongoClient;
 
 const app = require('./app');
