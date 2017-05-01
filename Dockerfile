@@ -9,6 +9,8 @@ RUN npm install
 
 COPY . /src
 
+RUN ln -s /src/log /var/log/achievements-service
+
 EXPOSE 8888
 
 ENTRYPOINT ["npm", "run"]

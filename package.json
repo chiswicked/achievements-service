@@ -6,7 +6,7 @@
   "license": "ISC",
   "main": "./src/index.js",
   "scripts": {
-    "clean": "rm -rf coverage .nyc_output coverage.lcov",
+    "clean": "rm -rf coverage .nyc_output coverage.lcov log/* *.log",
     "clean:all": "npm run clean; rm -rf node_modules",
     "start": "node src/index.js",
     "test": "nyc --reporter=text --reporter=text-summary ./node_modules/mocha/bin/_mocha --recursive && npm run clean -s && echo",
@@ -25,7 +25,8 @@
   ],
   "dependencies": {
     "express": "^4.15.2",
-    "mongodb": "^2.2.26"
+    "mongodb": "^2.2.26",
+    "winston": "^2.3.1"
   },
   "devDependencies": {
     "chai": "^3.5.0",
