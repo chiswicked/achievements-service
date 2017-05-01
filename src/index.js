@@ -1,11 +1,14 @@
-const express = require('express');
+const MongoClient = require('mongodb').MongoClient;
 
-const app = express();
+const app = require('./app');
+const serviceStartup = require('./utils/service-startup');
 
-app.get('/', (req, res) => {
-  res.send('Achievements Service');
-});
-
-app.listen(8888);
-
-module.exports = app;
+if (require.main === module) {
+  serviceStartup.connect(MongoClient, 'mongodb://localhost:27017/test', app, 8888)
+    .then(() => {
+      console.log('Listening on port 8888');
+    })
+    .catch((error) => {
+      console.error(`${error}`);
+    });
+}

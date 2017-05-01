@@ -1,5 +1,7 @@
 let cachedConnection = null;
 
+const connection = () => cachedConnection;
+
 const connect = (client, url) =>
   new Promise((success, failure) => {
     client.connect(url, (err, db) => {
@@ -11,8 +13,6 @@ const connect = (client, url) =>
       }
     });
   });
-
-const connection = () => cachedConnection;
 
 const disconnect = () => {
   cachedConnection.close();

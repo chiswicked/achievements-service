@@ -8,74 +8,70 @@ const should = chai.should();
 
 chai.use(chaiAsPromised);
 
+const validMongoClient = {
+  connect: (url, callback) => {
+    callback(undefined, { fake: 'db' });
+  },
+};
+const invalidMongoClient = {
+  connect: (url, callback) => {
+    callback(new Error('Connection to MongoDB failed'));
+  },
+};
+
 describe('Mongo DB', () => {
   it('should not have a connection before connecting', () => {
     should.not.exist(db.connection());
   });
 
-  it('should return error message if connected with invalid MongoClient', () => {
-    const invalidMongoClient = {
-      connect: (url, callback) => {
-        callback(new Error('Connection to MongoDB failed'));
-      },
-    };
-    return db.connect(invalidMongoClient, 'mock://url').should.be.rejected;
-  });
+  it('should return error message if connected with invalid MongoClient', () =>
+    db.connect(invalidMongoClient, 'fake://url')
+      .should.be.rejected);
 
-  it('should return connection if connected with valid MongoClient', () => {
-    const validMongoClient = {
-      connect: (url, callback) => {
-        callback(undefined, {});
-      },
-    };
-    return db.connect(validMongoClient, 'mock://url').should.be.fulfilled;
-  });
+  it('should connect if connected with valid MongoClient', () =>
+    db.connect(validMongoClient, 'fake://url')
+      .should.be.fulfilled);
 
-  it('should return connection after successfully connecting', () => {
-    const validMongoClient = {
-      connect: (url, callback) => {
-        callback(undefined, { fake: 'db' });
-      },
-    };
-    return db.connect(validMongoClient, 'mock://url').should.eventually.deep.equal({ fake: 'db' });
-  });
+  it('should return connection after successfully connecting', () =>
+    db.connect(validMongoClient, 'fake://url')
+      .should.eventually.deep.equal({ fake: 'db' }));
 
   it('should set connection after successfully connecting', (done) => {
-    const validMongoClient = {
-      connect: (url, callback) => {
-        callback(undefined, { fake: 'db' });
-      },
-    };
-    db.connect(validMongoClient, 'mock://url').then(() => {
-      db.connection().should.deep.equal({ fake: 'db' });
-      done();
-    });
+    db.connect(validMongoClient, 'fake://url')
+      .then(() => {
+        db.connection().should.deep.equal({ fake: 'db' });
+        done();
+      });
   });
 
   it('should clear cache after disconnecting', (done) => {
     const close = sinon.spy();
-    const validMongoClient = {
+    const spyingMongoClient = {
       connect: (url, callback) => {
         callback(undefined, { close });
       },
     };
-    db.connect(validMongoClient, 'mock://url').then(() => {
-      db.disconnect();
-      close.should.have.been.calledOnce;
-      done();
-    });
+
+    db.connect(spyingMongoClient, 'fake://url')
+      .then(() => {
+        db.disconnect();
+        close.should.have.been.calledOnce;
+        done();
+      });
   });
 
   it('should not have a connection after disconnecting', (done) => {
-    const validMongoClient = {
+    const validMongoClientWithClose = {
       connect: (url, callback) => {
-        callback(undefined, { close: () => { } });
+        callback(undefined, { close: () => {} });
       },
     };
-    db.connect(validMongoClient, 'mock://url').then(() => {
-      db.disconnect();
-      should.not.exist(db.connection());
-      done();
-    });
+
+    db.connect(validMongoClientWithClose, 'fake://url')
+      .then(() => {
+        db.disconnect();
+        should.not.exist(db.connection());
+        done();
+      });
   });
 });
