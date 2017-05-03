@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+# Run on Travis CI after a succesful build
+# Runs unit tests and turns off coverage checks on spike branches
+
+set -e +o pipefail
+
+if [ -z "$TRAVIS_BRANCH" ] || [ -z "$DOCKER_IMAGE" ]; then
+  echo "ERROR: Missing environment variables"
+  exit 1
+fi
+
+TEST_COMMAND=test
+
+if [[ "$TRAVIS_BRANCH" == spike-* ]]; then
+  TEST_COMMAND=$TEST_COMMAND:spike
+fi
+
+docker run $DOCKER_IMAGE $TEST_COMMAND

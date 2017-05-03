@@ -15,7 +15,7 @@ install:
   - docker build -t $DOCKER_IMAGE .
 
 script:
-  - docker run $DOCKER_IMAGE test
+  - ./bin/run-tests
 
 after_success:
   - ./bin/report-code-quality
