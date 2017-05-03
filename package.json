@@ -1,6 +1,6 @@
 {
   "name": "achievements-service",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Achivements Service - Node.js Restful API",
   "author": "Norbert Metz <mr.norbert.metz@googlemail.com>",
   "license": "ISC",
@@ -9,8 +9,8 @@
     "clean": "rm -rf coverage .nyc_output coverage.lcov log/* *.log",
     "clean:all": "npm run clean; rm -rf node_modules",
     "start": "NODE_PATH=. node src/index.js",
-    "test": "nyc --reporter=text --reporter=text-summary ./node_modules/mocha/bin/_mocha --recursive && npm run clean -s && echo",
-    "test:spike": "nyc --check-coverage=false --reporter=text --reporter=text-summary ./node_modules/mocha/bin/_mocha --recursive && npm run clean -s && echo",
+    "test": "nyc ./node_modules/mocha/bin/_mocha --recursive && npm run clean -s && echo",
+    "test:spike": "nyc --check-coverage=false ./node_modules/mocha/bin/_mocha --recursive && npm run clean -s && echo",
     "coverage": "nyc --reporter=lcov ./node_modules/mocha/bin/_mocha --recursive > /dev/null 2>&1; open coverage/lcov-report/index.html",
     "coverage:report": "nyc --reporter=lcov ./node_modules/mocha/bin/_mocha --recursive > /dev/null 2>&1 && nyc report --reporter=text-lcov",
     "coverage:upload": "codacy-coverage",
