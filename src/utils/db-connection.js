@@ -1,7 +1,7 @@
 /*!
  * Achievements Service
  * Copyright(c) 2017 Norbert Metz
- * MIT Licensed
+ * ISC Licensed
  */
 
 /**
@@ -19,6 +19,9 @@ let cachedConnection = null;
  */
 
 const connection = () => cachedConnection;
+
+const collection = name =>
+  (cachedConnection ? cachedConnection.collection(name) : undefined);
 
 /**
  * Establishes server connection and listens on given port
@@ -62,5 +65,6 @@ const disconnect = () => {
 module.exports = {
   connect,
   connection,
+  collection,
   disconnect,
 };

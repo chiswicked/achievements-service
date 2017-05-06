@@ -1,0 +1,154 @@
+/*!
+ * Achievements Service
+ * Copyright(c) 2017 Norbert Metz
+ * ISC Licensed
+ */
+
+/**
+ * Module dependencies
+ * @private
+ */
+
+const _ = require('lodash');
+
+/**
+ * Creates an event if one with the supplied `obj.id` does not exist yet
+ *
+ * @param {Collection} collection
+ * @param {Object} obj Expects `obj.id` and `obj.description` fields
+ * @return {Promise}
+ * @public
+ */
+
+module.exports.create = (collection, obj) =>
+  new Promise((success, failure) => {
+    if (!obj) failure('Invalid arguments');
+    collection.insertOne(obj, (err, result) => {
+      if (err) failure(err);
+      success(result);
+    });
+  });
+
+/**
+ * Returns the event matching the supplied `id`
+ *
+ * @param {Collection} collection
+ * @param {string} id
+ * @return {Promise}
+ * @public
+ */
+
+module.exports.read = (collection, id) =>
+  new Promise((success, failure) => {
+    if (!id) failure('Invalid arguments');
+    collection.findOne({ id }, { _id: 0 }, (err, result) => {
+      if (err) failure(err);
+      if (!result) failure('Not found');
+      success(result);
+    });
+  });
+
+/**
+ * Returns all events
+ *
+ * @param {Collection} collection
+ * @return {Promise}
+ * @public
+ */
+
+module.exports.readAll = collection =>
+  new Promise((success, failure) => {
+    collection.find({}, { _id: 0 }).toArray((err, result) => {
+      if (err) failure(err);
+      success(result);
+    });
+  });
+
+/**
+ * Updates the event description of the event matching the supplied `obj.id`
+ *
+ * @param {Collection} collection
+ * @param {Object} obj Expects `obj.id` and `obj.description` fields
+ * @return {Promise}
+ * @public
+ */
+
+module.exports.update = (collection, obj) =>
+  new Promise((success, failure) => {
+    if (!obj || !obj.id || !obj.description) failure('Invalid arguments');
+    collection.findOneAndUpdate(
+      { id: obj.id },
+      { $set: { description: obj.description } },
+      { projection: { _id: 0 } },
+      (err, result) => {
+        if (err) failure(err);
+        if (result.matchedCount === 0) failure('Not found');
+        success(result);
+      });
+  });
+
+/**
+ * Deletes the event matching the supplied `id`
+ *
+ * @param {Collection} collection
+ * @param {string} id
+ * @return {Promise}
+ * @public
+ */
+
+module.exports.delete = (collection, id) =>
+  new Promise((success, failure) => {
+    if (!id) failure('Invalid arguments');
+    collection.deleteOne({ id }, (err, result) => {
+      if (err) failure(err);
+      if (result.deletedCount === 0) failure('Not found');
+      success(result);
+    });
+  });
+
+/**
+ * Extracts `id` from request parameters
+ *
+ * @param {Object} req
+ * @return {Promise}
+ * @public
+ */
+
+module.exports.getIdFromRequestURI = req =>
+  new Promise((success, failure) => {
+    const id = _.get(req, 'params.id', undefined);
+    if (!id) failure('Invalid arguments');
+    success(id);
+  });
+
+/**
+ * Extracts `id` and `description` from request body
+ *
+ * @param {Object} req
+ * @return {Promise}
+ * @public
+ */
+
+module.exports.getObjectToCreateFromRequest = req =>
+  new Promise((success, failure) => {
+    const id = _.get(req, 'body.id', undefined);
+    const description = _.get(req, 'body.description', undefined);
+    if (!id || !description) failure('Invalid arguments');
+    success({ id, description });
+  });
+
+/**
+ * Extracts `id` from request paremeters and `description` from request body
+ *
+ * @param {Object} req
+ * @return {Promise}
+ * @public
+ */
+
+module.exports.getObjectToUpdateFromRequest = req =>
+  new Promise((success, failure) => {
+    const id = _.get(req, 'params.id', undefined);
+    const description = _.get(req, 'body.description', undefined);
+    if (!id || !description) failure('Invalid arguments');
+    success({ id, description });
+  });

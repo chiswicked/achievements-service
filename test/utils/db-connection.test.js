@@ -8,6 +8,13 @@ const should = chai.should();
 
 chai.use(chaiAsPromised);
 
+
+const collectionMongoClient = {
+  connect: (url, callback) => {
+    callback(undefined, { fake: 'db', collection: name => ({ fake: name }) });
+  },
+};
+
 const validMongoClient = {
   connect: (url, callback) => {
     callback(undefined, { fake: 'db' });
@@ -22,6 +29,17 @@ const invalidMongoClient = {
 describe('Mongo DB', () => {
   it('should not have a connection before connecting', () => {
     should.not.exist(db.connection());
+  });
+
+  it('should not have reference to collections before connecting', () =>
+    should.not.exist(db.collection('collection')));
+
+  it('should return reference to collections once connected', (done) => {
+    db.connect(collectionMongoClient, 'fake://url')
+      .then(() => {
+        db.collection('collection').should.deep.equal({ fake: 'collection' });
+        done();
+      });
   });
 
   it('should return error message if connected with invalid MongoClient', () =>

@@ -25,7 +25,9 @@
     "test"
   ],
   "dependencies": {
+    "body-parser": "^1.17.1",
     "express": "^4.15.2",
+    "lodash": "^4.17.4",
     "mongodb": "^2.2.26",
     "winston": "^2.3.1"
   },

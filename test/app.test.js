@@ -8,7 +8,7 @@ const app = require('../src/app');
 
 describe('GET / HTTP/1.1', () => {
   it('should return 200 OK Achievements Service', (done) => {
-    chai.request(app)
+    chai.request(app.create())
       .get('/')
       .end((err, res) => {
         res.should.have.status(200);

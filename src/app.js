@@ -1,15 +1,45 @@
 /*!
  * Achievements Service
  * Copyright(c) 2017 Norbert Metz
- * MIT Licensed
+ * ISC Licensed
  */
 
+/**
+ * Module dependencies
+ * @private
+ */
+
+const bodyParser = require('body-parser');
 const express = require('express');
 
-const app = express();
+const routes = require('./routes/');
 
-app.get('/', (req, res) => {
-  res.send('Achievements Service');
-});
+/**
+ * HTTP server factory
+ * @return {Server}
+ * @public
+ */
 
-module.exports = app;
+module.exports.create = () => {
+  const app = express();
+
+  app.use(bodyParser.json());
+
+  /**
+   * Route definitions
+   * @private
+   */
+
+  app.get('/', routes.root);
+
+  app.post('/events', routes.events.create);
+  app.get('/events/:id', routes.events.read);
+  app.get('/events', routes.events.readAll);
+  app.patch('/events/:id', routes.events.update);
+  app.delete('/events/:id', routes.events.delete);
+  app.all('/events/*', (req, res) => {
+    res.sendStatus(400);
+  });
+
+  return app;
+};

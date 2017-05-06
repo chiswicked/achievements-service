@@ -1,7 +1,7 @@
 /*!
  * Achievements Service
  * Copyright(c) 2017 Norbert Metz
- * MIT Licensed
+ * ISC Licensed
  */
 
 /**
