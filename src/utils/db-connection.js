@@ -20,6 +20,14 @@ let cachedConnection = null;
 
 const connection = () => cachedConnection;
 
+/**
+ * Returns collection associated with given name
+ *
+ * @param name
+ * @return {Collection}
+ * @public
+ */
+
 const collection = name =>
   (cachedConnection ? cachedConnection.collection(name) : undefined);
 
@@ -35,12 +43,9 @@ const collection = name =>
 const connect = (client, url) =>
   new Promise((success, failure) => {
     client.connect(url, (err, db) => {
-      if (err) {
-        failure(err);
-      } else {
-        cachedConnection = db;
-        success(cachedConnection);
-      }
+      if (err) failure(err);
+      cachedConnection = db;
+      success(cachedConnection);
     });
   });
 
