@@ -25,7 +25,7 @@ const errorCtrl = ({
     Promise.reject('Invalid controller action'),
 });
 
-describe.only('Cache', () => {
+describe('Cache', () => {
   describe('factory call', () => {
     it('should resolve if controller is valid', () =>
       cache.create(emptyCtrl, {})
