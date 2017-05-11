@@ -3,6 +3,10 @@
   "plugins": [
     "import"
   ],
+  "rules": {
+    "no-multi-assign": 0,
+    "no-underscore-dangle": 0
+  },
   "env": {
     "mocha": true,
     "node": true
