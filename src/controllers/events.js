@@ -12,6 +12,12 @@
 const _ = require('lodash');
 
 /**
+ * Events controller prototype.
+ */
+
+const controller = exports = module.exports = {};
+
+/**
  * Creates an event if one with the supplied `obj.id` does not exist yet
  *
  * @param {Collection} collection
@@ -20,7 +26,7 @@ const _ = require('lodash');
  * @public
  */
 
-module.exports.create = (collection, obj) =>
+controller.create = (collection, obj) =>
   new Promise((success, failure) => {
     if (!obj) failure('Invalid arguments');
     collection.insertOne(obj, (err, result) => {
@@ -38,7 +44,7 @@ module.exports.create = (collection, obj) =>
  * @public
  */
 
-module.exports.read = (collection, id) =>
+controller.read = (collection, id) =>
   new Promise((success, failure) => {
     if (!id) failure('Invalid arguments');
     collection.findOne({ id }, { _id: 0 }, (err, result) => {
@@ -56,7 +62,7 @@ module.exports.read = (collection, id) =>
  * @public
  */
 
-module.exports.readAll = collection =>
+controller.readAll = collection =>
   new Promise((success, failure) => {
     collection.find({}, { _id: 0 }).toArray((err, result) => {
       if (err) failure(err);
@@ -73,7 +79,7 @@ module.exports.readAll = collection =>
  * @public
  */
 
-module.exports.update = (collection, obj) =>
+controller.update = (collection, obj) =>
   new Promise((success, failure) => {
     if (!obj || !obj.id || !obj.description) failure('Invalid arguments');
     collection.findOneAndUpdate(
@@ -96,7 +102,7 @@ module.exports.update = (collection, obj) =>
  * @public
  */
 
-module.exports.delete = (collection, id) =>
+controller.delete = (collection, id) =>
   new Promise((success, failure) => {
     if (!id) failure('Invalid arguments');
     collection.deleteOne({ id }, (err, result) => {
@@ -114,7 +120,7 @@ module.exports.delete = (collection, id) =>
  * @public
  */
 
-module.exports.getIdFromRequestURI = req =>
+controller.getIdFromRequestURI = req =>
   new Promise((success, failure) => {
     const id = _.get(req, 'params.id', undefined);
     if (!id) failure('Invalid arguments');
@@ -129,7 +135,7 @@ module.exports.getIdFromRequestURI = req =>
  * @public
  */
 
-module.exports.getObjectToCreateFromRequest = req =>
+controller.getObjectToCreateFromRequest = req =>
   new Promise((success, failure) => {
     const id = _.get(req, 'body.id', undefined);
     const description = _.get(req, 'body.description', undefined);
@@ -145,7 +151,7 @@ module.exports.getObjectToCreateFromRequest = req =>
  * @public
  */
 
-module.exports.getObjectToUpdateFromRequest = req =>
+controller.getObjectToUpdateFromRequest = req =>
   new Promise((success, failure) => {
     const id = _.get(req, 'params.id', undefined);
     const description = _.get(req, 'body.description', undefined);
