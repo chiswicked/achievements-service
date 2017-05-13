@@ -1,6 +1,7 @@
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 
+const Cache = require('../../src/utils/cache').Cache;
 const events = require('../../src/controllers/events');
 
 chai.use(chaiAsPromised);
@@ -39,20 +40,25 @@ const errorFindOne = (id, proj, callback) => {
 
 // events.readAll() fakes
 
+const testEventArray = [{
+  id: 'TEST_EVENT_ONE',
+  description: 'Test description one',
+}, {
+  id: 'TEST_EVENT_TWO',
+  description: 'Test description two',
+}, {
+  id: 'TEST_EVENT_THREE',
+  description: 'Test description three',
+}];
+
+const successController = ({
+  readAll: () =>
+    Promise.resolve(testEventArray),
+});
+
 const successFind = () => ({
   toArray: callback =>
-    callback(
-      undefined,
-      [{
-        id: 'TEST_EVENT_ONE',
-        description: 'Test description one',
-      }, {
-        id: 'TEST_EVENT_TWO',
-        description: 'Test description two',
-      }, {
-        id: 'TEST_EVENT_THREE',
-        description: 'Test description three',
-      }]),
+    callback(undefined, testEventArray),
 });
 
 const errorFind = () => ({
@@ -110,7 +116,7 @@ const errorCollection = {
 
 // Unit tests
 
-describe('Events CRUD', () => {
+describe('Events controller', () => {
   describe('Create', () => {
     it('should work if called with valid parameters', () =>
       events.create(successCollection, testObj)
@@ -268,5 +274,22 @@ describe('Events CRUD', () => {
       return events.getObjectToUpdateFromRequest(req)
         .should.be.rejectedWith('Invalid arguments');
     });
+  });
+
+  describe('cache', () => {
+    it('should be a Cache instance', () => {
+      events.cache.should.be.instanceof(Cache);
+    });
+
+    it('should be empty before initialisation', () => {
+      events.cache.get().should.deep.equal([]);
+    });
+
+    it('should be empty after clearing it', done =>
+      events.cache.init(successController, {})
+        .then(() => {
+          events.cache.get().should.deep.equal(testEventArray);
+          done();
+        }));
   });
 });

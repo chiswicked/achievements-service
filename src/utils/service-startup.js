@@ -9,28 +9,15 @@
  * @private
  */
 
-const dbConnectionManager = require('./db-connection');
-const serverConnectionManager = require('./server-connection');
+const events = require('../controllers/events');
+const db = require('./db-connection');
+const server = require('./server-connection');
 
 /**
- * Cached server connections
- * @private
+ * Service startup prototype.
  */
 
-let dbConnection = null;
-let serverConnection = null;
-
-/**
- * Returns cached server connections
- *
- * @return {Object}
- * @public
- */
-
-const connection = {
-  db: () => dbConnection,
-  server: () => serverConnection,
-};
+const service = exports = module.exports = {};
 
 /**
  * Establishes database and server connections
@@ -43,39 +30,12 @@ const connection = {
  * @public
  */
 
-const connect = (client, url, server, port) =>
-  dbConnectionManager.connect(client, url)
-    .then((dbConnected) => {
-      dbConnection = dbConnected;
-      return serverConnectionManager.connect(server, port);
-    })
-    .then((serverConnected) => {
-      serverConnection = serverConnected;
-      return Promise.resolve({ db: dbConnection, server: serverConnection });
-    });
-
-/**
- * Closes the databse and server connections and clears cache
- * @public
- */
-
-const disconnect = () => {
-  dbConnection.close();
-  dbConnection = null;
-  serverConnection.close();
-  serverConnection = null;
-};
-
-/**
- * Expose public methods and properties:
- * `connect(server, port)`
- * `connection`
- * `disconnect()`
- * @public
- */
-
-module.exports = {
-  connect,
-  connection,
-  disconnect,
-};
+service.start = (client, url, app, port) =>
+  // Connect to database
+  db.connect(client, url)
+    // Cache event objects
+    .then(connection =>
+      events.cache.init(events, connection.collection('events')))
+    // Start HTTP server
+    .then(() =>
+      server.connect(app, port));

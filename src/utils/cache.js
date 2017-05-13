@@ -8,9 +8,29 @@
  * Cache util class created through factory method
  * @private
  */
-const Cache = module.exports.Cache = class {
-  constructor(cachedObjects) {
-    this.cachedObjects = cachedObjects;
+module.exports.Cache = class {
+  constructor() {
+    this.cachedObjects = [];
+    this.initialised = false;
+  }
+
+  /**
+  * Populates cache with objects from database collection
+  *
+  * @param controller Controller handling retrieval of objects from database
+  * @param collection Collection holding objects in database
+  * @public
+  */
+  init(controller, collection) {
+    return new Promise((resolve, reject) => {
+      controller.readAll(collection)
+        .then((data) => {
+          this.cachedObjects = data.slice();
+          this.initialised = true;
+          resolve();
+        })
+        .catch((err) => { reject(err); });
+    });
   }
 
   /**
@@ -33,18 +53,13 @@ const Cache = module.exports.Cache = class {
     this.cachedObjects.push(obj);
     return this.get();
   }
-};
 
-/**
- * Factory method returning a cache instance populated with objects from supplied collection
- *
- * @param controller Controller handling retrieval of objects from database
- * @param collection Collection holding objects in database
- * @public
- */
-module.exports.create = (controller, collection) =>
-  new Promise((success, failure) => {
-    controller.readAll(collection)
-      .then((data) => { success(new Cache(data.slice())); })
-      .catch((err) => { failure(err); });
-  });
+  /**
+  * Clears cache
+  * @public
+  */
+  clear() {
+    this.cachedObjects = [];
+    this.initialised = false;
+  }
+};

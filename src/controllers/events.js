@@ -10,6 +10,7 @@
  */
 
 const _ = require('lodash');
+const Cache = require('../utils/cache').Cache;
 
 /**
  * Events controller prototype.
@@ -111,6 +112,14 @@ controller.delete = (collection, id) =>
       success(result);
     });
   });
+
+/**
+ * Event cache, holds event instances in memory
+ * Thus no databse lookup is needed when a client triggers an event
+ * @public
+ */
+
+controller.cache = new Cache();
 
 /**
  * Extracts `id` from request parameters
