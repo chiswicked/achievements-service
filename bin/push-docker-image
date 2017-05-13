@@ -11,14 +11,12 @@ if [ -z "$TRAVIS_BRANCH" ] || [ -z "$DOCKER_USERNAME" ] || [ -z "$DOCKER_PASSWOR
   exit 1
 fi
 
-if [[ "$TRAVIS_TAG" =~ v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
-    if [ "$TRAVIS_BRANCH" == "master" ]; then
-        docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-        export DOCKER_IMAGE_TAG=$DOCKER_IMAGE:${TRAVIS_TAG:1}
-        docker tag $DOCKER_IMAGE $DOCKER_IMAGE_TAG
-        docker push $DOCKER_IMAGE_TAG
-    fi
+if [[ "$TRAVIS_TAG" =~ v[0-9]+\.[0-9]+\.[0-9]+ ]] && [ "$TRAVIS_BRANCH" == "master" ]; then
+  docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+  export DOCKER_IMAGE_TAG=$DOCKER_IMAGE:${TRAVIS_TAG:1}
+  docker tag $DOCKER_IMAGE $DOCKER_IMAGE_TAG
+  docker push $DOCKER_IMAGE_TAG
 else
-    echo "Pushing build to Docker Hub is disabled on '$TRAVIS_BRANCH' branch with '$TRAVIS_TAG' build tag"
-    exit 1
+  echo "Pushing build to Docker Hub is disabled on '$TRAVIS_BRANCH' branch with '$TRAVIS_TAG' build tag"
+  exit 1
 fi
