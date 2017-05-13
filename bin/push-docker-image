@@ -2,21 +2,24 @@
 
 # Run on Travis CI after a succesful build
 # Uploads docker image to Docker Hub
-# Feature only enabled on master with valid build tag
+# Executes only if build tag is a valid version number
+# 
+# git tag -a "v2.4.0" -m "New feature"
+# git push --tag
 
 set -e +o pipefail
 
-if [ -z "$TRAVIS_BRANCH" ] || [ -z "$DOCKER_USERNAME" ] || [ -z "$DOCKER_PASSWORD" ] || [ -z "$DOCKER_IMAGE" ]; then
+if [ -z "$DOCKER_USERNAME" ] || [ -z "$DOCKER_PASSWORD" ] || [ -z "$DOCKER_IMAGE" ]; then
   echo "ERROR: Missing environment variables"
   exit 1
 fi
 
-if [[ "$TRAVIS_TAG" =~ v[0-9]+\.[0-9]+\.[0-9]+ ]] && [ "$TRAVIS_BRANCH" == "master" ]; then
+if [[ "$TRAVIS_TAG" =~ v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
   docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
   export DOCKER_IMAGE_TAG=$DOCKER_IMAGE:${TRAVIS_TAG:1}
   docker tag $DOCKER_IMAGE $DOCKER_IMAGE_TAG
   docker push $DOCKER_IMAGE_TAG
 else
-  echo "Pushing build to Docker Hub is disabled on '$TRAVIS_BRANCH' branch with '$TRAVIS_TAG' build tag"
+  echo "Pushing build to Docker Hub is disabled when executed with '$TRAVIS_TAG' build tag"
   exit 1
 fi
