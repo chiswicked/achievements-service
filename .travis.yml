@@ -19,4 +19,4 @@ script:
 
 after_success:
   - ./bin/report-code-quality
-  - ./bin/push-docker-image `bash ./bin/package-version`
+  - ./bin/push-docker-image
