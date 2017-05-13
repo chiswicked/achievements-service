@@ -11,12 +11,12 @@ if [ -z "$TRAVIS_BRANCH" ] || [ -z "$DOCKER_IMAGE" ]; then
 fi
 
 if [[ "$TRAVIS_BRANCH" == spike-* ]]; then
-  echo "Code quality reporting is disabled on $TRAVIS_BRANCH branch"
+  echo "Code quality reporting is disabled on '$TRAVIS_BRANCH' branch"
   exit 1
 fi
 
 if [ ! "`docker images | awk '$1=="'$DOCKER_IMAGE'" { print }' | grep $DOCKER_IMAGE`" ]; then
-  echo "ERROR: Invalid Docker image name: $DOCKER_IMAGE"
+  echo "ERROR: Invalid Docker image name: '$DOCKER_IMAGE'"
   exit 1
 fi
 
