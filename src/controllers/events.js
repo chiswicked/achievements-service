@@ -10,6 +10,7 @@
  */
 
 const _ = require('lodash');
+const Cache = require('../utils/cache').Cache;
 
 /**
  * Events controller prototype.
@@ -17,6 +18,14 @@ const _ = require('lodash');
  */
 
 const controller = exports = module.exports = {};
+
+/**
+ * Event cache, holds event instances in memory
+ * Thus no databse lookup is needed when a client triggers an event
+ * @public
+ */
+
+controller.cache = new Cache();
 
 /**
  * Creates an event if one with the supplied `obj.id` does not exist yet

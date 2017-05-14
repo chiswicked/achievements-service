@@ -2,6 +2,7 @@ const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 
 const events = require('../../src/controllers/events');
+const Cache = require('../../src/utils/cache').Cache;
 
 chai.use(chaiAsPromised);
 
@@ -110,8 +111,8 @@ const errorCollection = {
 
 // Unit tests
 
-describe('Events CRUD', () => {
-  describe('Create', () => {
+describe('Events controller', () => {
+  describe('create', () => {
     it('should work if called with valid parameters', () =>
       events.create(successCollection, testObj)
         .should.be.fulfilled);
@@ -129,7 +130,7 @@ describe('Events CRUD', () => {
         .should.be.rejectedWith('Test error occurred'));
   });
 
-  describe('Read', () => {
+  describe('read', () => {
     it('should work if called with valid parameters', () =>
       events.read(successCollection, 'TEST_EVENT')
         .should.be.fulfilled);
@@ -143,7 +144,7 @@ describe('Events CRUD', () => {
         .should.be.rejectedWith('Test error occurred'));
   });
 
-  describe('Read All', () => {
+  describe('readAll', () => {
     it('should ', () =>
       events.readAll(successCollection)
         .should.be.fulfilled);
@@ -152,7 +153,7 @@ describe('Events CRUD', () => {
         .should.be.rejectedWith('Test error occurred'));
   });
 
-  describe('Update', () => {
+  describe('update', () => {
     it('should work if called with valid parameters', () =>
       events.update(successCollection, testObj)
         .should.be.fulfilled);
@@ -170,7 +171,7 @@ describe('Events CRUD', () => {
         .should.be.rejectedWith('Test error occurred'));
   });
 
-  describe('Delete', () => {
+  describe('delete', () => {
     it('should work if called with valid parameters', () =>
       events.delete(successCollection, 'TEST_EVENT')
         .should.be.fulfilled);
@@ -184,7 +185,32 @@ describe('Events CRUD', () => {
         .should.be.rejectedWith('Test error occurred'));
   });
 
-  describe('Get ID from request', () => {
+  describe('cache', () => {
+    beforeEach(() => {
+      events.cache = new Cache();
+    });
+    it('should be a Cache instance', () => {
+      events.cache.should.be.instanceof(Cache);
+    });
+
+    it('should be empty', () => {
+      events.cache.get().should.deep.equal([]);
+    });
+
+    it('should populate cache on init', (done) => {
+      const controller = ({
+        readAll: () =>
+          Promise.resolve([{ key: 1 }, { key: 2 }]),
+      });
+      events.cache.init(controller, successCollection)
+        .then(() => {
+          events.cache.get().should.deep.equal([{ key: 1 }, { key: 2 }]);
+          done();
+        });
+    });
+  });
+
+  describe('getIdFromRequestURI', () => {
     it('should succeed if request is valid', () => {
       const req = { params: { id: 'testId' } };
       return events.getIdFromRequestURI(req)
@@ -204,7 +230,7 @@ describe('Events CRUD', () => {
     });
   });
 
-  describe('Get Object to be created from request', () => {
+  describe('getObjectToBeCreatedFromRequest', () => {
     it('should succeed if request payload contains relevant fields', () => {
       const req = { body: testObj };
       return events.getObjectToCreateFromRequest(req)
@@ -232,7 +258,7 @@ describe('Events CRUD', () => {
     });
   });
 
-  describe('Get Object to be updated from request', () => {
+  describe('getObjectToUpdateFromRequest', () => {
     it('should succeed if request payload and parameters contains relevant fields', () => {
       const req = {
         params: { id: 'testId' },
