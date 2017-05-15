@@ -32,11 +32,15 @@ module.exports.create = () => {
 
   app.get('/', routes.root);
 
+  app.post('/achievements', routes.achievements.create);
+  app.get('/achievements', routes.achievements.readAll);
+
   app.post('/events', routes.events.create);
   app.get('/events/:id', routes.events.read);
   app.get('/events', routes.events.readAll);
   app.patch('/events/:id', routes.events.update);
   app.delete('/events/:id', routes.events.delete);
+
   app.all('/events/*', (req, res) => {
     res.sendStatus(400);
   });

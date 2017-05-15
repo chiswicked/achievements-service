@@ -9,6 +9,7 @@
  * @private
  */
 
+const achievements = require('../controllers/achievements');
 const db = require('./db-connection');
 const events = require('../controllers/events');
 const server = require('./server-connection');
@@ -33,5 +34,6 @@ const service = exports = module.exports = {};
 
 service.start = (client, url, app, port) =>
   db.connect(client, url)
-    .then(connection => events.cache.init(events, connection.collection('events')))
+    .then(connection => events.cache.init(events, connection.collection('events'))
+      .then(() => achievements.cache.init(achievements, connection.collection('achievements'))))
     .then(() => server.connect(app, port));
