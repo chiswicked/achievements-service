@@ -43,6 +43,11 @@ module.exports.create = () => {
 
   app.post('/events/:id/emit', routes.events.emit);
 
+  app.post('/users', routes.users.create);
+  app.get('/users/:id', routes.users.read);
+  app.get('/users', routes.users.readAll);
+  app.delete('/events/:id', routes.users.delete);
+
   app.all('/events/*', (req, res) => {
     res.sendStatus(400);
   });
