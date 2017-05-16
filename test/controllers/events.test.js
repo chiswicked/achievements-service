@@ -13,6 +13,24 @@ const testObj = {
   description: 'Test description',
 };
 
+const testObjArray = [{
+  id: 'TEST_EVENT_ONE',
+  description: 'Test description one',
+}, {
+  id: 'TEST_EVENT_TWO',
+  description: 'Test description two',
+}, {
+  id: 'TEST_EVENT_THREE',
+  description: 'Test description three',
+}];
+
+// Event controller fake
+
+const controller = ({
+  readAll: () =>
+    Promise.resolve(testObjArray),
+});
+
 // events.create() fakes
 
 const successCreate = (obj, callback) => {
@@ -42,18 +60,7 @@ const errorFindOne = (id, proj, callback) => {
 
 const successFind = () => ({
   toArray: callback =>
-    callback(
-      undefined,
-      [{
-        id: 'TEST_EVENT_ONE',
-        description: 'Test description one',
-      }, {
-        id: 'TEST_EVENT_TWO',
-        description: 'Test description two',
-      }, {
-        id: 'TEST_EVENT_THREE',
-        description: 'Test description three',
-      }]),
+    callback(undefined, testObjArray),
 });
 
 const errorFind = () => ({
@@ -198,13 +205,9 @@ describe('Events controller', () => {
     });
 
     it('should populate cache on init', (done) => {
-      const controller = ({
-        readAll: () =>
-          Promise.resolve([{ key: 1 }, { key: 2 }]),
-      });
       events.cache.init(controller, successCollection)
         .then(() => {
-          events.cache.get().should.deep.equal([{ key: 1 }, { key: 2 }]);
+          events.cache.get().should.deep.equal(testObjArray);
           done();
         });
     });
@@ -226,6 +229,38 @@ describe('Events controller', () => {
     it('should return error if request is invalid', () => {
       const req = {};
       return events.getIdFromRequestURI(req)
+        .should.be.rejectedWith('Invalid arguments');
+    });
+  });
+
+  describe('getProgressFromRequest', () => {
+    it('should resolve if request is valid', () => {
+      const req = { body: { progress: 1 } };
+      return events.getProgressFromRequest(req)
+        .should.be.fulfilled;
+    });
+
+    it('should resolve with id from valid request', () => {
+      const req = { body: { progress: 1 } };
+      return events.getProgressFromRequest(req)
+        .should.eventually.equal(1);
+    });
+
+    it('should reject if request is invalid', () => {
+      const req = {};
+      return events.getProgressFromRequest(req)
+        .should.be.rejectedWith('Invalid arguments');
+    });
+
+    it('should reject if request field is not a valid Integer', () => {
+      const req = { body: { progress: '1' } };
+      return events.getProgressFromRequest(req)
+        .should.be.rejectedWith('Invalid arguments');
+    });
+
+    it('should reject if request field is an Integer less than 1', () => {
+      const req = { body: { progress: 0 } };
+      return events.getProgressFromRequest(req)
         .should.be.rejectedWith('Invalid arguments');
     });
   });
@@ -293,6 +328,36 @@ describe('Events controller', () => {
       };
       return events.getObjectToUpdateFromRequest(req)
         .should.be.rejectedWith('Invalid arguments');
+    });
+  });
+
+  let cache;
+
+  describe('isRegisteredEvent', () => {
+    beforeEach(() => {
+      cache = new Cache();
+    });
+
+    it('should reject if cache is empty', () =>
+      events.isRegisteredEvent(cache, 'TEST_EVENT')
+        .should.be.rejectedWith('Invalid event id: TEST_EVENT'));
+
+    it('should reject if event id is not found in initialized cache', (done) => {
+      cache.init(controller, successCollection)
+        .then(() => {
+          events.isRegisteredEvent(cache, 'TEST_EVENT')
+            .should.be.rejectedWith('Invalid event id: TEST_EVENT');
+          done();
+        });
+    });
+
+    it('should resolve if event id is found in initialized cache', (done) => {
+      cache.init(controller, successCollection)
+        .then(() => {
+          events.isRegisteredEvent(cache, 'TEST_EVENT_ONE')
+            .should.be.fulfilled;
+          done();
+        });
     });
   });
 });

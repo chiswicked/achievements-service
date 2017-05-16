@@ -88,3 +88,22 @@ controller.getObjectToCreateFromRequest = req =>
     };
     success(obj);
   });
+
+/**
+ * Returns projected achievement objects with triggered completions and their respective progress
+ *
+ * @return {Arryay}
+ * @public
+ */
+controller.getTriggeredAchievementsFromCache = (cache, trigger, progress) => {
+  const ret = [];
+  cache.get().forEach((a) => {
+    const cmpl = [];
+    _.forEach(a.completion, (c) => {
+      if (c.trigger === trigger) { cmpl.push({ id: c.id, progress, target: c.multiplier }); }
+    });
+    if (cmpl.length > 0) { ret.push({ _id: a._id, completion: cmpl }); }
+  });
+  return ret;
+};
+

@@ -9,6 +9,7 @@
  * @private
  */
 
+const achievements = require('../controllers/achievements');
 const db = require('../utils/db-connection');
 const events = require('../controllers/events');
 const response = require('../utils/response');
@@ -91,5 +92,29 @@ route.delete = (req, res) => {
   events.getIdFromRequestURI(req)
     .then(id => events.delete(db.collection('events'), id))
     .then(() => { res.sendStatus(204); })
+    .catch((err) => { res.send(response.error(err)); });
+};
+
+/**
+ * Handles the validation and deletion of the given event object
+ * Sends appropriate success or error response back to the client
+ *
+ * @param {Object} req
+ * @param {Object} res
+ */
+
+route.emit = (req, res) => {
+  let trigger;
+  events.getIdFromRequestURI(req)
+    .then((id) => {
+      trigger = id;
+      return events.isRegisteredEvent(events.cache, id);
+    })
+    .then(() => events.getProgressFromRequest(req))
+    .then((progress) => {
+      const triggeredEvents =
+        achievements.getTriggeredAchievementsFromCache(achievements.cache, trigger, progress);
+      res.send(response.success(triggeredEvents));
+    })
     .catch((err) => { res.send(response.error(err)); });
 };

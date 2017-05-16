@@ -59,3 +59,15 @@ describe('Route events.delete', () => {
     events.delete({}, res);
   });
 });
+
+describe('Route events.emit', () => {
+  it('should respond', (done) => {
+    const res = {
+      send: () => {
+        true.should.be.true;
+        done();
+      },
+    };
+    events.emit({}, res);
+  });
+});

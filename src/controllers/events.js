@@ -138,6 +138,21 @@ controller.getIdFromRequestURI = req =>
   });
 
 /**
+ * Extracts `progress` from request body
+ *
+ * @param {Object} req
+ * @return {Promise}
+ * @public
+ */
+
+controller.getProgressFromRequest = req =>
+  new Promise((success, failure) => {
+    const progress = _.get(req, 'body.progress', undefined);
+    if (!progress || !_.isInteger(progress) || progress < 1) failure('Invalid arguments');
+    success(progress);
+  });
+
+/**
  * Extracts `id` and `description` from request body
  *
  * @param {Object} req
@@ -167,4 +182,19 @@ controller.getObjectToUpdateFromRequest = req =>
     const description = _.get(req, 'body.description', undefined);
     if (!id || !description) failure('Invalid arguments');
     success({ id, description });
+  });
+
+/**
+ * Returns whether or not the an event with the supplied id exists
+ *
+ * @return {Promise}
+ * @public
+ */
+
+controller.isRegisteredEvent = (cache, id) =>
+  new Promise((success, failure) => {
+    if (_.filter(cache.get(), event => event.id === id).length === 0) {
+      failure(`Invalid event id: ${id}`);
+    }
+    success();
   });

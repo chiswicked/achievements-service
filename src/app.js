@@ -41,6 +41,8 @@ module.exports.create = () => {
   app.patch('/events/:id', routes.events.update);
   app.delete('/events/:id', routes.events.delete);
 
+  app.post('/events/:id/emit', routes.events.emit);
+
   app.all('/events/*', (req, res) => {
     res.sendStatus(400);
   });
