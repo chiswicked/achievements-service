@@ -233,34 +233,52 @@ describe('Events controller', () => {
     });
   });
 
-  describe('getProgressFromRequest', () => {
+  describe('getUserIdAndProgressFromRequest', () => {
     it('should resolve if request is valid', () => {
-      const req = { body: { progress: 1 } };
-      return events.getProgressFromRequest(req)
+      const req = { body: { userId: 'johnsmith', progress: 1 } };
+      return events.getUserIdAndProgressFromRequest(req)
         .should.be.fulfilled;
     });
 
     it('should resolve with id from valid request', () => {
-      const req = { body: { progress: 1 } };
-      return events.getProgressFromRequest(req)
-        .should.eventually.equal(1);
+      const req = { body: { userId: 'johnsmith', progress: 1 } };
+      return events.getUserIdAndProgressFromRequest(req)
+        .should.become({ userId: 'johnsmith', progress: 1 });
     });
 
     it('should reject if request is invalid', () => {
       const req = {};
-      return events.getProgressFromRequest(req)
+      return events.getUserIdAndProgressFromRequest(req)
         .should.be.rejectedWith('Invalid arguments');
     });
 
-    it('should reject if request field is not a valid Integer', () => {
-      const req = { body: { progress: '1' } };
-      return events.getProgressFromRequest(req)
+    it('should reject if progress field is missing', () => {
+      const req = { body: { userId: 'johnsmith' } };
+      return events.getUserIdAndProgressFromRequest(req)
         .should.be.rejectedWith('Invalid arguments');
     });
 
-    it('should reject if request field is an Integer less than 1', () => {
-      const req = { body: { progress: 0 } };
-      return events.getProgressFromRequest(req)
+    it('should reject if progress field is not a valid Integer', () => {
+      const req = { body: { userId: 'johnsmith', progress: '1' } };
+      return events.getUserIdAndProgressFromRequest(req)
+        .should.be.rejectedWith('Invalid arguments');
+    });
+
+    it('should reject if progress field is an Integer less than 1', () => {
+      const req = { body: { userId: 'johnsmith', progress: 0 } };
+      return events.getUserIdAndProgressFromRequest(req)
+        .should.be.rejectedWith('Invalid arguments');
+    });
+
+    it('should reject if userId field is missing', () => {
+      const req = { body: { progress: 1 } };
+      return events.getUserIdAndProgressFromRequest(req)
+        .should.be.rejectedWith('Invalid arguments');
+    });
+
+    it('should reject if userId field is not a string', () => {
+      const req = { body: { userId: 1, progress: 0 } };
+      return events.getUserIdAndProgressFromRequest(req)
         .should.be.rejectedWith('Invalid arguments');
     });
   });

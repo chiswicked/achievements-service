@@ -119,3 +119,7 @@ controller.getObjectToCreateFromRequest = req =>
     if (!id) failure('Invalid arguments');
     success({ id });
   });
+
+controller.createUserObject = () => {
+
+};

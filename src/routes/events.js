@@ -9,10 +9,12 @@
  * @private
  */
 
+const _ = require('lodash');
 const achievements = require('../controllers/achievements');
 const db = require('../utils/db-connection');
 const events = require('../controllers/events');
 const response = require('../utils/response');
+const users = require('../controllers/users');
 
 /**
  * Events route prototype.
@@ -105,16 +107,59 @@ route.delete = (req, res) => {
 
 route.emit = (req, res) => {
   let trigger;
+  let triggeredAchievements;
   events.getIdFromRequestURI(req)
     .then((id) => {
       trigger = id;
       return events.isRegisteredEvent(events.cache, id);
     })
-    .then(() => events.getProgressFromRequest(req))
-    .then((progress) => {
-      const triggeredEvents =
-        achievements.getTriggeredAchievementsFromCache(achievements.cache, trigger, progress);
-      res.send(response.success(triggeredEvents));
+    .then(() => events.getUserIdAndProgressFromRequest(req))
+    .then((evnt) => {
+      triggeredAchievements =
+        achievements.getTriggeredAchievementsFromCache(achievements.cache, trigger, evnt.progress);
+      return users.read(db.collection('users'), evnt.userId);
+    })
+    .then((user) => {
+      const newUser = {};
+      newUser.id = user.id;
+      newUser.achievements = [];
+      _.forEach(triggeredAchievements, (triggeredAchievement) => {
+        const userAchievement = _.find(user.achievements, { id: triggeredAchievement._id });
+        const cachedAchievement = _.find(achievements.cache.get(), { _id: triggeredAchievement._id });
+
+        const newAchievement = {};
+        newAchievement._id = triggeredAchievement._id;
+        newAchievement.completion = [];
+        _.forEach(cachedAchievement.completion, (cachedCompletion) => {
+          const newCompletion = {
+            id: cachedCompletion.id,
+            target: cachedCompletion.multiplier,
+            progress: 0,
+          };
+          const triggeredCompletion = _.find(triggeredAchievement.completion, { id: cachedCompletion.id });
+
+          if (triggeredCompletion) {
+            // it's the triggered completion
+            if (userAchievement) {
+              // it's an existing one -> increase
+              const userCompletion = _.find(userAchievement.completion, { id: triggeredCompletion.id });
+              const userProgress = _.get(userCompletion, 'progress') || 0;
+              newCompletion.progress = Math.min(triggeredCompletion.progress + userProgress, cachedCompletion.multiplier);
+            } else {
+              // it's a new one -> increase
+              newCompletion.progress = Math.min(triggeredCompletion.progress, cachedCompletion.multiplier);
+            }
+          } else if (userAchievement) {
+            // it's an existing one -> set to what is on record
+            const userCompletion = _.find(userAchievement.completion, { id: cachedCompletion.id });
+            const userProgress = _.get(userCompletion, 'progress') || 0;
+            newCompletion.progress = userProgress;
+          }
+          newAchievement.completion.push(newCompletion);
+        });
+        newUser.achievements.push(newAchievement);
+      });
+      res.send(response.success(newUser));
     })
     .catch((err) => { res.send(response.error(err)); });
 };

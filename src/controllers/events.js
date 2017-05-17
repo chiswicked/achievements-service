@@ -145,11 +145,14 @@ controller.getIdFromRequestURI = req =>
  * @public
  */
 
-controller.getProgressFromRequest = req =>
+controller.getUserIdAndProgressFromRequest = req =>
   new Promise((success, failure) => {
+    const userId = _.get(req, 'body.userId', undefined);
     const progress = _.get(req, 'body.progress', undefined);
-    if (!progress || !_.isInteger(progress) || progress < 1) failure('Invalid arguments');
-    success(progress);
+    if (!userId || !_.isString(userId) || !progress || !_.isInteger(progress) || progress < 1) {
+      failure('Invalid arguments');
+    }
+    success({ userId, progress });
   });
 
 /**

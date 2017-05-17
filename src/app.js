@@ -48,6 +48,9 @@ module.exports.create = () => {
   app.get('/users', routes.users.readAll);
   app.delete('/users/:id', routes.users.delete);
 
+  app.get('/users/:id/achievements/:achievement', routes.users.achievements.read);
+  app.get('/users/:id/achievements', routes.users.achievements.readAll);
+
   app.all('/events/*', (req, res) => {
     res.sendStatus(400);
   });
